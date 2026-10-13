@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { CustomButton } from '../../components/CustomButton';
 import { CustomInput } from '../../components/CustomInput';
@@ -17,6 +17,7 @@ import {
   TITLE_MAX_LENGTH,
   validateTaskForm,
 } from '../../utils/validation';
+import { showMessage } from '../../utils/dialog';
 
 type Props = NativeStackScreenProps<TaskStackParamList, 'TaskForm'>;
 
@@ -66,7 +67,7 @@ export function TaskFormScreen({ navigation, route }: Props) {
     const validation = validateTaskForm(values);
     setErrors(validation);
     if (hasErrors(validation)) {
-      Alert.alert('Formulário inválido', 'Corrija os campos destacados antes de salvar.');
+      showMessage('Formulário inválido', 'Corrija os campos destacados antes de salvar.');
       return;
     }
 
@@ -74,14 +75,14 @@ export function TaskFormScreen({ navigation, route }: Props) {
     try {
       if (isEditing && taskId) {
         await updateTask(taskId, values);
-        Alert.alert('Tarefa atualizada', 'As alterações foram salvas com sucesso.');
+        showMessage('Tarefa atualizada', 'As alterações foram salvas com sucesso.');
       } else {
         await addTask(values);
-        Alert.alert('Tarefa cadastrada', 'Sua nova tarefa foi salva com sucesso.');
+        showMessage('Tarefa cadastrada', 'Sua nova tarefa foi salva com sucesso.');
       }
       navigation.goBack();
     } catch (error) {
-      Alert.alert('Erro ao salvar', error instanceof Error ? error.message : 'Tente novamente.');
+      showMessage('Erro ao salvar', error instanceof Error ? error.message : 'Tente novamente.');
     } finally {
       setIsSaving(false);
     }

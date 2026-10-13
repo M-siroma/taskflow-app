@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { CustomButton } from '../../components/CustomButton';
@@ -11,6 +11,7 @@ import { useTheme } from '../../hooks/useTheme';
 import { TaskStackParamList } from '../../types/navigation';
 import { TaskStatus } from '../../types/task';
 import { formatDate } from '../../utils/formatDate';
+import { confirmAction, showMessage } from '../../utils/dialog';
 
 type Props = NativeStackScreenProps<TaskStackParamList, 'TaskDetail'>;
 
@@ -49,7 +50,7 @@ export function TaskDetailScreen({ navigation, route }: Props) {
     try {
       await updateTaskStatus(task.id, status);
     } catch (error) {
-      Alert.alert('Erro', error instanceof Error ? error.message : 'Não foi possível alterar o status.');
+      showMessage('Erro', error instanceof Error ? error.message : 'Não foi possível alterar o status.');
     } finally {
       setUpdatingStatus(null);
     }
@@ -60,24 +61,23 @@ export function TaskDetailScreen({ navigation, route }: Props) {
       return;
     }
     const { id, title } = task;
-    Alert.alert('Excluir tarefa', `Tem certeza que deseja excluir "${title}"? Essa ação não pode ser desfeita.`, [
-      { text: 'Cancelar', style: 'cancel' },
-      {
-        text: 'Excluir',
-        style: 'destructive',
-        onPress: async () => {
-          setIsDeleting(true);
-          try {
-            await deleteTask(id);
-            navigation.popToTop();
-            Alert.alert('Tarefa excluída', 'A tarefa foi removida com sucesso.');
-          } catch (error) {
-            setIsDeleting(false);
-            Alert.alert('Erro ao excluir', error instanceof Error ? error.message : 'Tente novamente.');
-          }
-        },
+    confirmAction({
+      title: 'Excluir tarefa',
+      message: `Tem certeza que deseja excluir "${title}"? Essa ação não pode ser desfeita.`,
+      confirmText: 'Excluir',
+      destructive: true,
+      onConfirm: async () => {
+        setIsDeleting(true);
+        try {
+          await deleteTask(id);
+          navigation.popToTop();
+          showMessage('Tarefa excluída', 'A tarefa foi removida com sucesso.');
+        } catch (error) {
+          setIsDeleting(false);
+          showMessage('Erro ao excluir', error instanceof Error ? error.message : 'Tente novamente.');
+        }
       },
-    ]);
+    });
   }
 
   return (

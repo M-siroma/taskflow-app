@@ -1,10 +1,11 @@
 import React from 'react';
-import { Alert, Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { ROLE_LABELS } from '../constants/taskOptions';
 import { useAuth } from '../hooks/useAuth';
 import { useTheme } from '../hooks/useTheme';
+import { confirmAction, showMessage } from '../utils/dialog';
 
 interface HeaderProps {
   title: string;
@@ -21,20 +22,19 @@ export function Header({ title }: HeaderProps) {
   const displayName = treatment ? `${treatment} ${user.name}` : user.name;
 
   function confirmLogout(): void {
-    Alert.alert('Sair', 'Deseja realmente encerrar a sessão?', [
-      { text: 'Cancelar', style: 'cancel' },
-      {
-        text: 'Sair',
-        style: 'destructive',
-        onPress: async () => {
-          try {
-            await logout();
-          } catch {
-            Alert.alert('Erro', 'Não foi possível encerrar a sessão. Tente novamente.');
-          }
-        },
+    confirmAction({
+      title: 'Sair',
+      message: 'Deseja realmente encerrar a sessão?',
+      confirmText: 'Sair',
+      destructive: true,
+      onConfirm: async () => {
+        try {
+          await logout();
+        } catch {
+          showMessage('Erro', 'Não foi possível encerrar a sessão. Tente novamente.');
+        }
       },
-    ]);
+    });
   }
 
   return (

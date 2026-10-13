@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { CustomButton } from '../../components/CustomButton';
 import { ROLE_LABELS, TREATMENT_OPTIONS } from '../../constants/taskOptions';
@@ -7,6 +7,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { useTasks } from '../../hooks/useTasks';
 import { useTheme } from '../../hooks/useTheme';
 import { Treatment } from '../../types/user';
+import { confirmAction, showMessage } from '../../utils/dialog';
 
 export function SettingsScreen() {
   const { user, treatment, updateTreatment, logout } = useAuth();
@@ -22,7 +23,7 @@ export function SettingsScreen() {
     try {
       await toggleTheme();
     } catch (error) {
-      Alert.alert('Aviso', error instanceof Error ? error.message : 'Não foi possível salvar o tema.');
+      showMessage('Aviso', error instanceof Error ? error.message : 'Não foi possível salvar o tema.');
     }
   }
 
@@ -31,27 +32,26 @@ export function SettingsScreen() {
       // Tocar novamente na opção selecionada remove a preferência.
       await updateTreatment(option === treatment ? null : option);
     } catch (error) {
-      Alert.alert('Erro', error instanceof Error ? error.message : 'Não foi possível salvar a preferência.');
+      showMessage('Erro', error instanceof Error ? error.message : 'Não foi possível salvar a preferência.');
     }
   }
 
   function confirmLogout(): void {
-    Alert.alert('Sair', 'Deseja realmente encerrar a sessão?', [
-      { text: 'Cancelar', style: 'cancel' },
-      {
-        text: 'Sair',
-        style: 'destructive',
-        onPress: async () => {
-          setIsLoggingOut(true);
-          try {
-            await logout();
-          } catch {
-            setIsLoggingOut(false);
-            Alert.alert('Erro', 'Não foi possível encerrar a sessão.');
-          }
-        },
+    confirmAction({
+      title: 'Sair',
+      message: 'Deseja realmente encerrar a sessão?',
+      confirmText: 'Sair',
+      destructive: true,
+      onConfirm: async () => {
+        setIsLoggingOut(true);
+        try {
+          await logout();
+        } catch {
+          setIsLoggingOut(false);
+          showMessage('Erro', 'Não foi possível encerrar a sessão.');
+        }
       },
-    ]);
+    });
   }
 
   return (
