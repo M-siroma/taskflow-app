@@ -8,9 +8,10 @@ O usuário se autentica, permanece conectado ao reabrir o app, cadastra, consult
 
 | Nome | RM |
 | --- | --- |
-| _Nome do integrante 1_ | _RM00000_ |
-| _Nome do integrante 2_ | _RM00000_ |
-| _Nome do integrante 3_ | _RM00000_ |
+| Arthur Gomes | RM560771 |
+| Luiz Gustavo | RM560110 |
+| Matheus Siroma | RM560248 |
+| Pedro Estevam | RM560642 |
 
 ## Vídeo de demonstração
 
